@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <style>
+        .navbar {
+            margin-bottom: 100px;
+        }
+
+        #canvas {
+            display: block;
+            max-width: 100%;
+        }
+
+        #canvas-container {
+            border: solid black 1px;
+        }
+
+        button,
+        #crop,
+        #reset,
+        #click-source {
+            background-color: gray;
+            border: none;
+            padding: 10px;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+
+        }
+
+        #start-camera {
+            width: 320px;
+        }
+
+        main {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+    </style>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+</head>
+
+<body>
+    <nav class="navbar navbar-light bg-light">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">WMS Cam</a>
+        </div>
+    </nav>
+    <main>
+        <div class="container">
+            <video id="video" width="320" height="240" autoplay></video>
+            <button id="start-camera">Start Camera</button>
+        </div>
+        <div class="container-button">
+            <input type="button" value="capture image" id="click-source">
+            <input type="button" value="crop" id="crop">
+            <input type="button" value="reset" id="reset">
+        </div>
+        <form action="#" method="post">
+            <input type="text" id="source" name='source' hidden>
+            <input type="text" id="target" name='target' hidden>
+            <button type="submit" id="done">Done</button>
+        </form>
+        <div id="canvas-container">
+            <canvas id="canvas" width="640" height="480"></canvas>
+        </div>
+    </main>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"
+        integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous">
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js"
+        integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous">
+    </script>
+
+    <script>
+        let camera_button = document.querySelector("#start-camera");
+        let video = document.querySelector("#video");
+        let click_button = document.querySelector("#click-photo");
+        let click_source = document.querySelector("#click-source")
+        let click_target = document.querySelector("#click-target")
+        let canvas = document.querySelector("#canvas");
+        let source = document.querySelector("#source")
+        let target = document.querySelector("#target")
+        const image = document.getElementById('canvas');
+        const crop_btn = document.getElementById('crop');
+        const reset_btn = document.getElementById('reset');
+
+        camera_button.addEventListener('click', async function () {
+            let stream = await navigator.mediaDevices.getUserMedia({
+                video: true,
+                audio: false
+            });
+            video.srcObject = stream;
+        });
+
+        click_source.addEventListener('click', function () {
+            canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+            let image_data_url = canvas.toDataURL('image/jpeg');
+            source.value = image_data_url
+            const cropper = new Cropper(image, {
+                cropBoxResizable: true,
+                crop(event) {},
+            });
+            crop_btn.addEventListener('click', function () {
+                target.value = cropper.getCroppedCanvas().toDataURL('image/jpeg')
+            });
+            reset_btn.addEventListener('click', function () {
+                cropper.destroy();
+            });
+        });
+    </script>
+</body>
+
+</html>
